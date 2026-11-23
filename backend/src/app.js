@@ -34,21 +34,22 @@ app.use(
   })
 );
 
-// Serve frontend build if dist folder exists (for fullstack Render Web Service deployment)
+// Serve frontend build if dist folder exists (Compatible with Express 5)
 if (fs.existsSync(distDir)) {
   app.use(express.static(distDir));
 
-  app.get("*", (req, res, next) => {
+  // Catch-all handler for SPA and Astro routes in Express 5
+  app.use((req, res, next) => {
     if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
       return next();
     }
     const cleanPath = req.path.replace(/^\//, "");
     const indexPath = path.resolve(distDir, cleanPath, "index.html");
-    if (fs.existsSync(indexPath)) {
+    if (cleanPath && fs.existsSync(indexPath)) {
       return res.sendFile(indexPath);
     }
     const filePath = path.resolve(distDir, cleanPath);
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+    if (cleanPath && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
       return res.sendFile(filePath);
     }
     res.sendFile(path.resolve(distDir, "index.html"));
@@ -59,7 +60,7 @@ if (fs.existsSync(distDir)) {
   });
 }
 
-// Error handling middleware for Multer and other errors
+// Error handling middleware
 app.use((err, req, res, next) => {
   if (err) {
     return res.status(400).json({

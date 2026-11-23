@@ -1,10 +1,3 @@
-// import app    from './src/app.js'
-
-// app.listen(3000, ()=>{
-//     console.log('server start');
-    
-// })
-
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -24,8 +17,8 @@ try {
 import app from "./src/app.js";
 
 const PORT = process.env.PORT || 3000;
-const NODE_ENV = process.env.NODE_ENV || "development";
+const NODE_ENV = process.env.NODE_ENV || "production";
 
-app.listen(PORT, () => {
-  console.log(`Server running in ${NODE_ENV} mode on http://localhost:${PORT}`);
-}); 
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running in ${NODE_ENV} mode on port ${PORT}`);
+});
