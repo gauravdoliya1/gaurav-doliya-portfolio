@@ -25,9 +25,25 @@ import "../styles/global.css";
       rel="stylesheet"
     />
 
-    <!-- Default to dark theme -->
+    <!-- Default to dark theme & apply custom accent -->
     <script is:inline>
       (() => {
+        try {
+          const savedTheme = localStorage.getItem('portfolio_theme');
+          if (savedTheme) {
+            const parsed = JSON.parse(savedTheme);
+            const primary = parsed.primaryColor || '#7C3AED';
+            document.documentElement.style.setProperty('--accent', primary);
+            document.documentElement.style.setProperty('--exp-accent', primary);
+            if (parsed.heroColor && parsed.heroColor.toLowerCase() !== '#7c3aed') {
+              document.documentElement.style.setProperty('--hero-accent', parsed.heroColor);
+            }
+            if (parsed.grayColor) {
+              document.documentElement.style.setProperty('--hero-gray', parsed.grayColor);
+            }
+          }
+        } catch (_) {}
+
         const isDark = (() => {
           if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('theme')) {
             return sessionStorage.getItem('theme') === 'dark';

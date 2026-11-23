@@ -5,10 +5,13 @@
 :root {
   /* ========================================================
      GLOBAL ACCENT COLOR CONFIGURATION
-     Change this hex code to update the color across the entire site!
+     Website Accent (Experience, Blogs, etc.): #7C3AED
+     Hero Home Accent (Photo Frame, Buttons): #de4528
      ======================================================== */
   --accent: #7C3AED;
-  --accent-hover: #7C3AED;
+  --accent-hover: #6D28D9;
+  --hero-accent: #de4528;
+  --hero-gray: #58687e;
 
   /* Neutral clean scrollbar */
   --scrollbar-thumb: #d4d4d8;

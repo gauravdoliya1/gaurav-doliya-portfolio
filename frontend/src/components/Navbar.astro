@@ -18,7 +18,7 @@ const links = [
     <!-- Left: Logo / Brand -->
     <div class="flex flex-1 items-center justify-start">
       <a href="/" class="group flex items-center text-xl font-extrabold tracking-tight text-zinc-900 transition-colors dark:text-white">
-        <span>Gaurav Doliya</span><span class="text-accent transition-transform group-hover:scale-125 inline-block">.</span>
+        <span>Gaurav Doliya</span>
       </a>
     </div>
 
@@ -154,6 +154,43 @@ const links = [
     };
 
     updateIcons();
+
+    // Sync dynamic theme accent colors
+    try {
+      const savedTheme = localStorage.getItem('portfolio_theme');
+      if (savedTheme) {
+        const parsed = JSON.parse(savedTheme);
+        let hero = parsed.heroColor;
+        if (hero && hero.toLowerCase() === '#7c3aed') {
+          hero = '#de4528';
+          parsed.heroColor = hero;
+          try { localStorage.setItem('portfolio_theme', JSON.stringify(parsed)); } catch (_) {}
+        }
+        if (hero) {
+          document.documentElement.style.setProperty('--hero-accent', hero);
+        }
+        if (parsed.primaryColor) {
+          document.documentElement.style.setProperty('--accent', parsed.primaryColor);
+        }
+        if (parsed.grayColor) {
+          document.documentElement.style.setProperty('--hero-gray', parsed.grayColor);
+        }
+      }
+    } catch (_) {}
+
+    // Listen to storage events for real-time live sync
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'portfolio_theme' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          let hero = parsed.heroColor;
+          if (hero && hero.toLowerCase() === '#7c3aed') hero = '#de4528';
+          if (hero) document.documentElement.style.setProperty('--hero-accent', hero);
+          if (parsed.primaryColor) document.documentElement.style.setProperty('--accent', parsed.primaryColor);
+          if (parsed.grayColor) document.documentElement.style.setProperty('--hero-gray', parsed.grayColor);
+        } catch (_) {}
+      }
+    });
 
     const toggleTheme = () => {
       const nextDark = document.documentElement.classList.toggle('dark');

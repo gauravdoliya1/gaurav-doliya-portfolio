@@ -9,7 +9,8 @@ const backendDataFile = path.resolve(__dirname, "../../data/theme.json");
 const frontendDataFile = path.resolve(__dirname, "../../../frontend/src/data/theme.json");
 
 const defaultTheme = {
-  primaryColor: "#de4528",
+  primaryColor: "#7C3AED",
+  heroColor: "#de4528",
   backgroundColor: "#0c0706",
   textColor: "#ffffff",
   grayColor: "#58687e"
@@ -36,11 +37,16 @@ export const getTheme = (req, res) => {
 };
 
 export const updateTheme = (req, res) => {
-  const { primaryColor, backgroundColor, textColor, grayColor } = req.body;
+  const { primaryColor, heroColor, backgroundColor, textColor, grayColor } = req.body;
 
   const current = getThemeData();
+  const effectiveHero = heroColor ? heroColor.trim() : (current.heroColor || "#de4528");
+  const effectivePrimary = primaryColor ? primaryColor.trim() : (current.primaryColor || "#7C3AED");
+
   const updated = {
-    primaryColor: primaryColor ? primaryColor.trim() : current.primaryColor,
+    primaryColor: effectivePrimary,
+    heroColor: effectiveHero,
+    experienceColor: effectivePrimary,
     backgroundColor: backgroundColor ? backgroundColor.trim() : current.backgroundColor,
     textColor: textColor ? textColor.trim() : current.textColor,
     grayColor: grayColor ? grayColor.trim() : (current.grayColor || "#58687e")

@@ -31,9 +31,14 @@ import "../styles/global.css";
 		/>
 
 		<!-- Dynamic theme colors -->
-		<style define:vars={{ primaryAccent: themeData.primaryColor, heroGray: themeData.grayColor || '#58687e' }}>
+		<style define:vars={{
+			primaryAccent: themeData.primaryColor || '#7C3AED',
+			heroAccent: themeData.heroColor || '#de4528',
+			heroGray: themeData.grayColor || '#58687e'
+		}}>
 			:root {
-				--accent: var(--primaryAccent, #de4528);
+				--accent: var(--primaryAccent, #7C3AED);
+				--hero-accent: var(--heroAccent, #de4528);
 				--hero-gray: var(--heroGray, #58687e);
 			}
 		</style>
@@ -41,19 +46,54 @@ import "../styles/global.css";
 		<!-- Prevent theme flash script (Default: ALWAYS Dark Theme) -->
 		<script is:inline>
 			(() => {
+				function applyCustomTheme(data) {
+					if (!data) return;
+					let hero = data.heroColor;
+					if (!hero || hero.toLowerCase() === '#7c3aed') {
+						hero = '#de4528';
+					}
+					const primary = data.primaryColor || '#7C3AED';
+					document.documentElement.style.setProperty("--hero-accent", hero);
+					document.documentElement.style.setProperty("--accent", primary);
+					if (data.grayColor) {
+						document.documentElement.style.setProperty("--hero-gray", data.grayColor);
+					}
+				}
+
 				// Apply custom saved theme colors if present
 				try {
 					const savedTheme = localStorage.getItem("portfolio_theme");
 					if (savedTheme) {
 						const parsed = JSON.parse(savedTheme);
-						if (parsed.primaryColor) {
-							document.documentElement.style.setProperty("--accent", parsed.primaryColor);
+						if (parsed.heroColor && parsed.heroColor.toLowerCase() === '#7c3aed') {
+							parsed.heroColor = '#de4528';
+							localStorage.setItem("portfolio_theme", JSON.stringify(parsed));
 						}
-						if (parsed.grayColor) {
-							document.documentElement.style.setProperty("--hero-gray", parsed.grayColor);
-						}
+						applyCustomTheme(parsed);
 					}
 				} catch (_) {}
+
+				// Live synchronization when theme is updated in admin dashboard
+				if (typeof window !== "undefined") {
+					window.addEventListener("storage", (e) => {
+						if (e.key === "portfolio_theme" && e.newValue) {
+							try { applyCustomTheme(JSON.parse(e.newValue)); } catch (_) {}
+						}
+					});
+
+					// Fetch latest theme configuration from backend API
+					try {
+						fetch("/api/theme")
+							.then((res) => res.json())
+							.then((data) => {
+								if (data?.success && data?.data) {
+									applyCustomTheme(data.data);
+								}
+							})
+							.catch(() => {});
+					} catch (_) {}
+				}
+
 				// Clear any stale light mode so default is always dark
 				if (
 					typeof localStorage !== "undefined" &&
@@ -78,7 +118,7 @@ import "../styles/global.css";
 					if (
 						typeof localStorage !== "undefined" &&
 						localStorage.getItem("theme")
-					) {
+					)	 {
 						return localStorage.getItem("theme") === "dark";
 					}
 					return true; // Default to dark theme

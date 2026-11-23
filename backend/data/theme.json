@@ -1,5 +1,7 @@
 {
-  "primaryColor": "#de4528",
+  "primaryColor": "#7c3aed",
+  "heroColor": "#d6330a",
+  "experienceColor": "#7c3aed",
   "backgroundColor": "#0c0706",
   "textColor": "#ffffff",
   "grayColor": "#58687e"

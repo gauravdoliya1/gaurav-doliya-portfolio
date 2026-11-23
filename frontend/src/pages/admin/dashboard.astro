@@ -183,13 +183,32 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
         <form id="themeForm">
 
           <div class="form-group">
-            <label for="primaryColor">Primary Color</label>
+            <label for="heroColor">Hero Accent Color (Home Photo Frame &amp; Buttons)</label>
             <div class="color-input">
-              <input type="color" id="primaryColor" value="#de4528">
+              <input type="color" id="heroColor" value="#de4528">
               <div class="color-meta">
-                <span class="color-hex" id="primaryHexVal">#de4528</span>
-                <span class="color-desc">Signature accent on buttons and highlights</span>
+                <span class="color-hex" id="heroHexVal">#DE4528</span>
+                <span class="color-desc">Home page top: Photo accent frame, View Resume button &amp; educator tag</span>
               </div>
+              <button type="button" class="color-row-reset-btn" data-reset-target="heroColor" data-default="#de4528" title="Reset Hero Color">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Reset</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="primaryColor">Website Accent Color (Experience, Blogs &amp; Tags)</label>
+            <div class="color-input">
+              <input type="color" id="primaryColor" value="#7C3AED">
+              <div class="color-meta">
+                <span class="color-hex" id="primaryHexVal">#7C3AED</span>
+                <span class="color-desc">Experience timeline dates &amp; bullets, Blog tags, links &amp; badges</span>
+              </div>
+              <button type="button" class="color-row-reset-btn" data-reset-target="primaryColor" data-default="#7C3AED" title="Reset Website Accent Color">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Reset</span>
+              </button>
             </div>
           </div>
 
@@ -198,9 +217,13 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
             <div class="color-input">
               <input type="color" id="grayColor" value="#58687e">
               <div class="color-meta">
-                <span class="color-hex" id="grayHexVal">#58687e</span>
+                <span class="color-hex" id="grayHexVal">#58687E</span>
                 <span class="color-desc">Hero fluid background wave ribbons</span>
               </div>
+              <button type="button" class="color-row-reset-btn" data-reset-target="grayColor" data-default="#58687e" title="Reset Wave Ribbons Color">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Reset</span>
+              </button>
             </div>
           </div>
 
@@ -209,9 +232,13 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
             <div class="color-input">
               <input type="color" id="backgroundColor" value="#0c0706">
               <div class="color-meta">
-                <span class="color-hex" id="bgHexVal">#0c0706</span>
+                <span class="color-hex" id="bgHexVal">#0C0706</span>
                 <span class="color-desc">Website dark theme background canvas</span>
               </div>
+              <button type="button" class="color-row-reset-btn" data-reset-target="backgroundColor" data-default="#0c0706" title="Reset Background Color">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Reset</span>
+              </button>
             </div>
           </div>
 
@@ -220,15 +247,24 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
             <div class="color-input">
               <input type="color" id="textColor" value="#ffffff">
               <div class="color-meta">
-                <span class="color-hex" id="textHexVal">#ffffff</span>
+                <span class="color-hex" id="textHexVal">#FFFFFF</span>
                 <span class="color-desc">Primary typography text color</span>
               </div>
+              <button type="button" class="color-row-reset-btn" data-reset-target="textColor" data-default="#ffffff" title="Reset Text Color">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                <span>Reset</span>
+              </button>
             </div>
           </div>
 
-          <button type="submit" class="save-button">
-            Save Colors
-          </button>
+          <div class="button-group">
+            <button type="submit" class="save-button">
+              Save Colors
+            </button>
+            <button type="button" id="resetThemeBtn" class="reset-button">
+              Reset All Colors
+            </button>
+          </div>
 
           <p class="form-message" id="themeMessage"></p>
 
@@ -465,6 +501,9 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
     // 3. Theme form
     const themeForm = document.querySelector("#themeForm");
     if (themeForm) {
+      const heroInput = themeForm.querySelector("#heroColor") as HTMLInputElement | null;
+      const heroHex = themeForm.querySelector("#heroHexVal") as HTMLElement | null;
+
       const primaryInput = themeForm.querySelector("#primaryColor") as HTMLInputElement | null;
       const primaryHex = themeForm.querySelector("#primaryHexVal") as HTMLElement | null;
 
@@ -480,12 +519,14 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
       const message = themeForm.querySelector("#themeMessage") as HTMLElement | null;
 
       function updateHexDisplays() {
+        if (heroHex && heroInput) heroHex.textContent = heroInput.value.toUpperCase();
         if (primaryHex && primaryInput) primaryHex.textContent = primaryInput.value.toUpperCase();
         if (grayHex && grayInput) grayHex.textContent = grayInput.value.toUpperCase();
         if (bgHex && bgInput) bgHex.textContent = bgInput.value.toUpperCase();
         if (textHex && textInput) textHex.textContent = textInput.value.toUpperCase();
       }
 
+      heroInput?.addEventListener("input", updateHexDisplays);
       primaryInput?.addEventListener("input", updateHexDisplays);
       grayInput?.addEventListener("input", updateHexDisplays);
       bgInput?.addEventListener("input", updateHexDisplays);
@@ -495,7 +536,10 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
         .then((res) => res.json())
         .then((data) => {
           if (data?.success && data?.data) {
-            if (primaryInput) primaryInput.value = data.data.primaryColor || "#de4528";
+            const hero = data.data.heroColor || "#de4528";
+            const primary = data.data.primaryColor || "#7C3AED";
+            if (heroInput) heroInput.value = hero;
+            if (primaryInput) primaryInput.value = primary;
             if (grayInput) grayInput.value = data.data.grayColor || "#58687e";
             if (bgInput) bgInput.value = data.data.backgroundColor || "#0c0706";
             if (textInput) textInput.value = data.data.textColor || "#ffffff";
@@ -507,10 +551,14 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
             const saved = localStorage.getItem("portfolio_theme");
             if (saved) {
               const parsed = JSON.parse(saved);
-              if (parsed.primaryColor && primaryInput) primaryInput.value = parsed.primaryColor;
-              if (parsed.grayColor && grayInput) grayInput.value = parsed.grayColor;
-              if (parsed.backgroundColor && bgInput) bgInput.value = parsed.backgroundColor;
-              if (parsed.textColor && textInput) textInput.value = parsed.textColor;
+              let hero = parsed.heroColor || "#de4528";
+              if (hero.toLowerCase() === "#7c3aed") hero = "#de4528";
+              const primary = parsed.primaryColor || "#7C3AED";
+              if (heroInput) heroInput.value = hero;
+              if (primaryInput) primaryInput.value = primary;
+              if (grayInput && parsed.grayColor) grayInput.value = parsed.grayColor;
+              if (bgInput && parsed.backgroundColor) bgInput.value = parsed.backgroundColor;
+              if (textInput && parsed.textColor) textInput.value = parsed.textColor;
               updateHexDisplays();
             }
           } catch (_) {}
@@ -519,7 +567,8 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
       themeForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         const submitBtn = themeForm.querySelector("button[type='submit']") as HTMLButtonElement | null;
-        const primaryColor = primaryInput?.value || "#de4528";
+        const heroColor = heroInput?.value || "#de4528";
+        const primaryColor = primaryInput?.value || "#7C3AED";
         const grayColor = grayInput?.value || "#58687e";
         const backgroundColor = bgInput?.value || "#0c0706";
         const textColor = textInput?.value || "#ffffff";
@@ -539,7 +588,13 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
           const res = await fetch(`${apiUrl}/api/theme`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ primaryColor, grayColor, backgroundColor, textColor })
+            body: JSON.stringify({
+              primaryColor,
+              heroColor,
+              grayColor,
+              backgroundColor,
+              textColor
+            })
           });
 
           const data = await res.json().catch(() => null);
@@ -547,8 +602,15 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
           try {
             localStorage.setItem(
               "portfolio_theme",
-              JSON.stringify({ primaryColor, grayColor, backgroundColor, textColor })
+              JSON.stringify({
+                primaryColor,
+                heroColor,
+                grayColor,
+                backgroundColor,
+                textColor
+              })
             );
+            document.documentElement.style.setProperty("--hero-accent", heroColor);
             document.documentElement.style.setProperty("--accent", primaryColor);
             document.documentElement.style.setProperty("--hero-gray", grayColor);
           } catch (_) {}
@@ -560,14 +622,34 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
             }
           } else {
             if (message) {
-              message.textContent = data?.message || "Failed to update colors.";
-              message.style.color = "#f87171";
+              message.textContent = data?.message || "Colors saved locally to browser!";
+              message.style.color = "#4ade80";
             }
           }
         } catch (err) {
-          if (message) {
-            message.textContent = "Network error: Unable to connect to backend.";
-            message.style.color = "#f87171";
+          try {
+            localStorage.setItem(
+              "portfolio_theme",
+              JSON.stringify({
+                primaryColor,
+                heroColor,
+                grayColor,
+                backgroundColor,
+                textColor
+              })
+            );
+            document.documentElement.style.setProperty("--hero-accent", heroColor);
+            document.documentElement.style.setProperty("--accent", primaryColor);
+            document.documentElement.style.setProperty("--hero-gray", grayColor);
+            if (message) {
+              message.textContent = "Colors saved to local browser settings!";
+              message.style.color = "#4ade80";
+            }
+          } catch (_) {
+            if (message) {
+              message.textContent = "Network error: Unable to connect to backend.";
+              message.style.color = "#f87171";
+            }
           }
         } finally {
           if (submitBtn) {
@@ -577,6 +659,87 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
           }
         }
       });
+
+      // Individual reset button for each color row
+      themeForm.querySelectorAll(".color-row-reset-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetId = btn.getAttribute("data-reset-target");
+          const defVal = btn.getAttribute("data-default");
+          if (!targetId || !defVal) return;
+
+          const input = themeForm.querySelector(`#${targetId}`) as HTMLInputElement | null;
+          if (input) {
+            input.value = defVal;
+            updateHexDisplays();
+
+            // Instant live preview
+            if (targetId === "heroColor") {
+              document.documentElement.style.setProperty("--hero-accent", defVal);
+            } else if (targetId === "primaryColor") {
+              document.documentElement.style.setProperty("--accent", defVal);
+            } else if (targetId === "grayColor") {
+              document.documentElement.style.setProperty("--hero-gray", defVal);
+            }
+
+            if (message) {
+              message.textContent = `Reset to ${defVal.toUpperCase()}! Click "Save Colors" to persist.`;
+              message.style.color = "#4ade80";
+            }
+          }
+        });
+      });
+
+      const resetBtn = themeForm.querySelector("#resetThemeBtn") as HTMLButtonElement | null;
+      if (resetBtn) {
+        resetBtn.addEventListener("click", async () => {
+          const defaultHero = "#de4528";
+          const defaultPrimary = "#7C3AED";
+          const defaultGray = "#58687e";
+          const defaultBg = "#0c0706";
+          const defaultText = "#ffffff";
+
+          if (heroInput) heroInput.value = defaultHero;
+          if (primaryInput) primaryInput.value = defaultPrimary;
+          if (grayInput) grayInput.value = defaultGray;
+          if (bgInput) bgInput.value = defaultBg;
+          if (textInput) textInput.value = defaultText;
+          updateHexDisplays();
+
+          if (message) {
+            message.textContent = "Resetting colors to default...";
+            message.style.color = "#de4528";
+          }
+
+          const defaultTheme = {
+            primaryColor: defaultPrimary,
+            heroColor: defaultHero,
+            grayColor: defaultGray,
+            backgroundColor: defaultBg,
+            textColor: defaultText
+          };
+
+          try {
+            localStorage.setItem("portfolio_theme", JSON.stringify(defaultTheme));
+            document.documentElement.style.setProperty("--hero-accent", defaultHero);
+            document.documentElement.style.setProperty("--accent", defaultPrimary);
+            document.documentElement.style.setProperty("--hero-gray", defaultGray);
+            window.dispatchEvent(new Event("storage"));
+          } catch (_) {}
+
+          try {
+            await fetch(`${apiUrl}/api/theme`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(defaultTheme)
+            });
+          } catch (_) {}
+
+          if (message) {
+            message.textContent = "Original default colors restored!";
+            message.style.color = "#4ade80";
+          }
+        });
+      }
     }
   }
 
@@ -920,6 +1083,49 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
     box-shadow: 0 0 0 2px rgba(222, 69, 40, 0.2);
   }
 
+  .button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .button-group .save-button {
+    margin-top: 0;
+    flex: 1;
+  }
+
+  .reset-button {
+    flex: 1;
+    padding: 14px 20px;
+    border: 1px solid #3f3f46;
+    border-radius: 10px;
+    background: #18181b;
+    color: #e4e4e7;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .reset-button:hover {
+    background: #27272a;
+    border-color: #52525b;
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  .reset-button:active {
+    transform: scale(0.99);
+  }
+
+  @media (max-width: 480px) {
+    .button-group {
+      flex-direction: column;
+    }
+  }
+
   .save-button {
     width: 100%;
     margin-top: 24px;
@@ -999,6 +1205,37 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
     display: flex;
     flex-direction: column;
     gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .color-row-reset-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    border: 1px solid #332b35;
+    border-radius: 6px;
+    background: #140f13;
+    color: #a1a1aa;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .color-row-reset-btn:hover {
+    background: #231921;
+    border-color: #de4528;
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  .color-row-reset-btn:active {
+    transform: scale(0.96);
   }
 
   .color-hex {
