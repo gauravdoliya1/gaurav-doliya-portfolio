@@ -1,5 +1,6 @@
 ---
 // src/components/Contact.astro
+import contactData from "../data/contact.json";
 ---
 
 <section
@@ -28,7 +29,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
         <!-- Phone / WhatsApp -->
         <a
-          href="https://wa.me/918383043341"
+          href={`https://wa.me/${contactData.whatsapp}`}
           target="_blank"
           rel="noopener noreferrer"
           class="flex flex-col gap-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#121215] p-4 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-md transition-all group"
@@ -59,14 +60,14 @@
           <span
             class="font-bold text-sm text-zinc-900 dark:text-white transition-colors mt-1"
           >
-            +91 83830 43341
+            {contactData.phone}
           </span>
           <span class="text-[11px] text-zinc-500">Chat on WhatsApp</span>
         </a>
 
         <!-- Email -->
         <a
-          href="mailto:gauravdoliya.fxwork@gmail.com"
+          href={`mailto:${contactData.email}`}
           class="flex flex-col gap-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#121215] p-4 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-md transition-all group"
         >
           <div class="flex items-center justify-between">
@@ -95,7 +96,7 @@
           <span
             class="font-bold text-xs sm:text-[13px] text-zinc-900 dark:text-white transition-colors truncate mt-1"
           >
-            gauravdoliya.fxwork@gmail.com
+            {contactData.email}
           </span>
           <span class="text-[11px] text-zinc-500">Send an email</span>
         </a>
@@ -134,7 +135,7 @@
           <span
             class="font-bold text-sm text-zinc-900 dark:text-white transition-colors mt-1"
           >
-            New Delhi, India
+            {contactData.location}
           </span>
           <span class="text-[11px] text-zinc-500">IST (UTC +5:30)</span>
         </div>

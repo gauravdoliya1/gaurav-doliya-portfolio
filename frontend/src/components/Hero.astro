@@ -1,5 +1,6 @@
 ---
 // src/components/Hero.astro
+import contactData from "../data/contact.json";
 ---
 
 <section
@@ -84,7 +85,7 @@
 
           <!-- Email -->
           <a
-            href="mailto:gauravdoliya.fxwork@gmail.com"
+            href={`mailto:${contactData.email}`}
             class="group inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white/80 backdrop-blur-md px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-800 shadow-sm transition-all hover:border-zinc-400 hover:bg-white active:scale-95 dark:border-zinc-800 dark:bg-black/50 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:bg-black/70 dark:hover:text-white"
           >
             <svg
@@ -105,7 +106,7 @@
 
           <!-- LinkedIn -->
           <a
-            href="https://www.linkedin.com/in/gauravdoliya"
+            href={contactData.linkedin}
             target="_blank"
             rel="noopener noreferrer"
             class="group inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white/80 backdrop-blur-md px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-800 shadow-sm transition-all hover:border-zinc-400 hover:bg-white active:scale-95 dark:border-zinc-800 dark:bg-black/50 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:bg-black/70 dark:hover:text-white"
@@ -194,9 +195,19 @@
 
     let startTime = performance.now();
 
+    function hexToRgb(hex) {
+      let c = (hex || '#58687e').replace('#', '').trim();
+      if (c.length === 3) c = c.split('').map(x => x + x).join('');
+      const num = parseInt(c, 16);
+      if (isNaN(num)) return '88, 104, 126';
+      return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
+    }
+
     function render(now) {
       const elapsed = now - startTime;
       const isDark = document.documentElement.classList.contains('dark');
+      const heroGrayHex = (typeof window !== 'undefined' && getComputedStyle(document.documentElement).getPropertyValue('--hero-gray').trim()) || '#58687e';
+      const grayRgb = hexToRgb(heroGrayHex);
 
       // Base canvas color
       ctx.fillStyle = isDark ? '#0c0706' : '#F6F3EF';
@@ -225,10 +236,10 @@
             ? 'rgba(255, 255, 255, 0.26)'
             : 'rgba(235, 240, 248, 0.12)';
         } else {
-          // Visible studio slate-gray ribbons with elegant depth for light theme
+          // Visible studio slate-gray ribbons connected to dynamic theme color
           color = (i % 2 === 0)
-            ? 'rgba(88, 104, 126, 0.32)'
-            : 'rgba(140, 155, 175, 0.25)';
+            ? `rgba(${grayRgb}, 0.32)`
+            : `rgba(${grayRgb}, 0.20)`;
         }
 
         ctx.strokeStyle = color;

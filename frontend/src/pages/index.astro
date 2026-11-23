@@ -5,6 +5,7 @@ import Experience from "../components/Experience.astro";
 import Blogs from "../components/Blogs.astro";
 import Projects from "../components/Projects.astro";
 import Contact from "../components/Contact.astro";
+import themeData from "../data/theme.json";
 import "../styles/global.css";
 ---
 
@@ -29,9 +30,30 @@ import "../styles/global.css";
 			rel="stylesheet"
 		/>
 
+		<!-- Dynamic theme colors -->
+		<style define:vars={{ primaryAccent: themeData.primaryColor, heroGray: themeData.grayColor || '#58687e' }}>
+			:root {
+				--accent: var(--primaryAccent, #de4528);
+				--hero-gray: var(--heroGray, #58687e);
+			}
+		</style>
+
 		<!-- Prevent theme flash script (Default: ALWAYS Dark Theme) -->
 		<script is:inline>
 			(() => {
+				// Apply custom saved theme colors if present
+				try {
+					const savedTheme = localStorage.getItem("portfolio_theme");
+					if (savedTheme) {
+						const parsed = JSON.parse(savedTheme);
+						if (parsed.primaryColor) {
+							document.documentElement.style.setProperty("--accent", parsed.primaryColor);
+						}
+						if (parsed.grayColor) {
+							document.documentElement.style.setProperty("--hero-gray", parsed.grayColor);
+						}
+					}
+				} catch (_) {}
 				// Clear any stale light mode so default is always dark
 				if (
 					typeof localStorage !== "undefined" &&

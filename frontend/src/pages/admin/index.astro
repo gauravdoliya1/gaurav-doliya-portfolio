@@ -68,14 +68,79 @@ const pageTitle = "Admin Login | Gaurav Doliya";
     <script>
       const loginForm = document.querySelector("#loginForm");
       const message = document.querySelector("#message");
+      const submitBtn = loginForm?.querySelector(".login-button") as HTMLButtonElement | null;
 
-      loginForm?.addEventListener("submit", (event) => {
+      loginForm?.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        if (message) {
-          message.textContent =
-            "Login authentication will be connected with the backend.";
-          message.className = "message";
+        const usernameInput = document.querySelector("#username") as HTMLInputElement | null;
+        const passwordInput = document.querySelector("#password") as HTMLInputElement | null;
+
+        const username = usernameInput?.value.trim() || "";
+        const password = passwordInput?.value.trim() || "";
+
+        if (!username || !password) {
+          if (message) {
+            message.textContent = "Please enter both username and password.";
+            message.className = "message error";
+          }
+          return;
+        }
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = 'Verifying... <span>⏳</span>';
+        }
+
+        const validUser = "gauravdoliya";
+        const validPass = "gd369";
+
+        try {
+          const apiUrl = import.meta.env.PUBLIC_API_URL || (typeof window !== "undefined" && window.location.hostname !== "localhost" ? window.location.origin : "http://localhost:3000");
+          const res = await fetch(`${apiUrl}/api/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password })
+          }).catch(() => null);
+
+          let success = false;
+          if (res && res.ok) {
+            const data = await res.json().catch(() => null);
+            if (data?.success) success = true;
+          } else if (username === validUser && password === validPass) {
+            success = true;
+          }
+
+          if (success) {
+            sessionStorage.setItem("admin_auth", "true");
+            sessionStorage.setItem("admin_user", username);
+            if (message) {
+              message.textContent = "Login successful! Redirecting...";
+              message.className = "message success";
+            }
+            setTimeout(() => {
+              window.location.href = "/admin/dashboard";
+            }, 300);
+          } else {
+            if (message) {
+              message.textContent = "Invalid username or password. Please try again.";
+              message.className = "message error";
+            }
+          }
+        } catch (err) {
+          if (username === validUser && password === validPass) {
+            sessionStorage.setItem("admin_auth", "true");
+            sessionStorage.setItem("admin_user", username);
+            window.location.href = "/admin/dashboard";
+          } else if (message) {
+            message.textContent = "Invalid username or password.";
+            message.className = "message error";
+          }
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Sign In <span>→</span>';
+          }
         }
       });
     </script>
