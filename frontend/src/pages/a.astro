@@ -1,0 +1,279 @@
+---
+import redirectConfig from "../data/redirectConfig.json";
+import "../styles/global.css";
+
+// 1. Resolve configuration from Environment Variables (Priority) or JSON file (Fallback)
+const envActive =
+  import.meta.env.REDIRECT_A_ACTIVE ??
+  import.meta.env.PUBLIC_REDIRECT_A_ACTIVE ??
+  process.env.REDIRECT_A_ACTIVE;
+
+const envTarget =
+  import.meta.env.REDIRECT_A_TARGET ??
+  import.meta.env.PUBLIC_REDIRECT_A_TARGET ??
+  process.env.REDIRECT_A_TARGET;
+
+// Parse boolean state
+const isActive =
+  envActive !== undefined
+    ? String(envActive).trim().toLowerCase() === "true" || String(envActive).trim() === "1"
+    : Boolean(redirectConfig.isActive);
+
+// Target URL
+const targetUrl =
+  envTarget && String(envTarget).trim() !== ""
+    ? String(envTarget).trim()
+    : String(redirectConfig.targetUrl || "").trim();
+
+const shouldRedirect = isActive && Boolean(targetUrl);
+
+// 2. Server-side redirect (if SSR mode is enabled in Astro)
+if (shouldRedirect && typeof Astro.redirect === "function") {
+  return Astro.redirect(targetUrl, 307);
+}
+
+// Social media links configuration for the Coming Soon fallback
+const socials = [
+  {
+    name: "Instagram",
+    href: "https://instagram.com/gauravdoliya",
+    color: "hover:text-[#E4405F] hover:border-[#E4405F]/40 hover:bg-[#E4405F]/10",
+    icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>`
+  },
+  {
+    name: "LinkedIn",
+    href: "https://www.linkedin.com/in/gauravdoliya",
+    color: "hover:text-[#0A66C2] hover:border-[#0A66C2]/40 hover:bg-[#0A66C2]/10",
+    icon: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.763z"/></svg>`
+  },
+  {
+    name: "YouTube",
+    href: "https://youtube.com/@gauravdoliya",
+    color: "hover:text-[#FF0000] hover:border-[#FF0000]/40 hover:bg-[#FF0000]/10",
+    icon: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>`
+  },
+  {
+    name: "X (Twitter)",
+    href: "https://x.com/gauravdoliya",
+    color: "hover:text-zinc-900 dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800",
+    icon: `<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`
+  },
+  {
+    name: "Discord",
+    href: "https://discord.gg/gauravdoliya",
+    color: "hover:text-[#5865F2] hover:border-[#5865F2]/40 hover:bg-[#5865F2]/10",
+    icon: `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`
+  }
+];
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- SEO: Strictly prevent indexing -->
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Gaurav Doliya | Work in Progress</title>
+    <meta name="description" content="Something exciting is in the works. Stay tuned." />
+
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- =========================================================================
+         INSTANT DYNAMIC REDIRECTION ENGINE (Zero Lag / Zero Flicker)
+         1. If active at build/server time: Immediately executes window.location.replace()
+         2. In dev/browser: Live-queries the backend API (/api/redirect) so changes
+            made in the Admin Dashboard take effect immediately without rebuilding!
+         ========================================================================= -->
+    {
+      shouldRedirect && (
+        <>
+          <meta http-equiv="refresh" content={`0;url=${targetUrl}`} />
+          <link rel="canonical" href={targetUrl} />
+        </>
+      )
+    }
+
+    <script is:inline define:vars={{ shouldRedirect, targetUrl }}>
+      (async () => {
+        // Step 1: Instant local execution if active
+        if (shouldRedirect && targetUrl) {
+          try {
+            window.location.replace(targetUrl);
+          } catch (_) {
+            window.location.href = targetUrl;
+          }
+          return;
+        }
+
+        // Step 2: Real-time query to Dashboard API for dynamic live updates
+        try {
+          const apiUrl =
+            window.location.hostname !== "localhost"
+              ? window.location.origin
+              : "http://localhost:3000";
+          const res = await fetch(`${apiUrl}/api/redirect`, { cache: "no-store" });
+          if (!res.ok) return;
+          const json = await res.json();
+          if (json?.success && json?.data?.isActive && json?.data?.targetUrl) {
+            const dest = String(json.data.targetUrl).trim();
+            if (dest) {
+              window.location.replace(dest);
+            }
+          }
+        } catch (_) {}
+      })();
+    </script>
+
+    <style>
+      .bg-dot-pattern {
+        background-image: radial-gradient(rgba(124, 58, 237, 0.22) 1.5px, transparent 1.5px);
+        background-size: 28px 28px;
+      }
+      :global(.dark) .bg-dot-pattern {
+        background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px);
+        background-size: 28px 28px;
+      }
+    </style>
+  </head>
+
+  <body class="relative min-h-screen bg-[#F5F5F5] dark:bg-[#000000] text-zinc-900 dark:text-zinc-100 font-['Plus_Jakarta_Sans',sans-serif] antialiased overflow-x-hidden selection:bg-purple-500 selection:text-white transition-colors duration-200">
+    
+    <!-- IF ACTIVE: Clean fallback if user's browser temporarily pauses JS -->
+    {
+      shouldRedirect ? (
+        <div class="flex min-h-screen flex-col items-center justify-center p-6 text-center">
+          <div class="h-8 w-8 animate-spin rounded-full border-2 border-purple-500 border-t-transparent mb-4"></div>
+          <p class="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            Redirecting you now... If you are not redirected automatically,{" "}
+            <a href={targetUrl} class="font-semibold text-purple-600 dark:text-purple-400 underline underline-offset-4 hover:text-purple-500">
+              click here
+            </a>.
+          </p>
+        </div>
+      ) : (
+        <main class="relative flex min-h-screen flex-col justify-between overflow-hidden px-6 py-10 sm:px-12 sm:py-16">
+          
+          <!-- Background Layer: Dot Grid -->
+          <div class="pointer-events-none absolute inset-0 bg-dot-pattern opacity-60 dark:opacity-40" />
+
+          <!-- Background Layer: Radial Glows -->
+          <div
+            class="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[420px] w-[650px] max-w-full rounded-full bg-gradient-to-tr from-purple-600/25 to-[#de4528]/20 blur-[130px] dark:from-purple-600/20 dark:to-[#de4528]/15"
+          />
+          <div
+            class="pointer-events-none absolute -bottom-40 left-1/2 -translate-x-1/2 h-[380px] w-[500px] max-w-full rounded-full bg-purple-600/15 blur-[120px] dark:bg-purple-900/15"
+          />
+
+          <!-- Top Navigation / Brand Bar -->
+          <header class="relative z-10 mx-auto flex w-full max-w-5xl items-center justify-between">
+            <a
+              href="/"
+              class="group flex items-center gap-3 text-lg sm:text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white transition-opacity hover:opacity-85"
+            >
+              <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 via-indigo-600 to-[#de4528] text-xs font-black text-white shadow-md shadow-purple-500/20 ring-1 ring-white/20">
+                GD
+              </span>
+              <span class="tracking-tight font-extrabold">Gaurav Doliya</span>
+            </a>
+
+            <!-- Return Home Button -->
+            <a
+              href="/"
+              class="inline-flex items-center gap-1.5 rounded-full border border-zinc-300 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 px-4 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-300 backdrop-blur-md transition-all hover:border-zinc-400 dark:hover:border-zinc-700 hover:text-zinc-950 dark:hover:text-white hover:shadow-sm"
+            >
+              <span>←</span>
+              <span>Back to Portfolio</span>
+            </a>
+          </header>
+
+          <!-- Center Content Card -->
+          <div class="relative z-10 mx-auto my-auto flex w-full max-w-2xl flex-col items-center text-center pt-8 pb-12">
+            
+            <!-- Central Brand Emblem Glow -->
+            <div class="relative mb-8 flex items-center justify-center">
+              <div class="absolute -inset-2 rounded-3xl bg-gradient-to-r from-purple-600/30 to-[#de4528]/30 blur-xl opacity-75 animate-pulse"></div>
+              <div class="relative flex h-20 w-20 items-center justify-center rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 shadow-xl backdrop-blur-md">
+                <svg class="h-9 w-9 text-purple-600 dark:text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Pill Badge: "Work in Progress" -->
+            <div class="mb-6 inline-flex items-center gap-2.5 rounded-full border border-purple-500/30 bg-purple-500/10 dark:bg-purple-950/40 px-4 py-1.5 backdrop-blur-md">
+              <span class="relative flex h-2 w-2">
+                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-purple-500 opacity-75"></span>
+                <span class="relative inline-flex h-2 w-2 rounded-full bg-purple-600 dark:bg-purple-400"></span>
+              </span>
+              <span class="text-xs font-bold uppercase tracking-widest text-purple-700 dark:text-purple-300">
+                Work in Progress
+              </span>
+            </div>
+
+            <!-- Main Headline -->
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-950 dark:text-white leading-[1.15] mb-5">
+              Something exciting is <br class="hidden sm:inline" />
+              <span class="bg-gradient-to-r from-purple-600 via-indigo-500 to-[#de4528] bg-clip-text text-transparent">
+                coming soon
+              </span>
+            </h1>
+
+            <!-- Subtitle -->
+            <p class="max-w-lg text-base sm:text-lg text-zinc-600 dark:text-zinc-400 font-normal leading-relaxed mb-10">
+              We are creating a new experience. Stay tuned. Follow along or get in touch through our social channels below.
+            </p>
+
+            <!-- Social Media Icon Buttons -->
+            <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+              {socials.map((social) => (
+                <a
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.name}
+                  title={social.name}
+                  class={`group relative flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 text-zinc-600 dark:text-zinc-300 shadow-sm backdrop-blur-md transition-all duration-200 active:scale-95 hover:-translate-y-1 hover:shadow-lg ${social.color}`}
+                >
+                  <Fragment set:html={social.icon} />
+                  
+                  <!-- Subtle Tooltip Label -->
+                  <span class="pointer-events-none absolute -bottom-8 rounded-md bg-zinc-900 dark:bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold text-white dark:text-zinc-900 opacity-0 shadow transition-opacity duration-150 group-hover:opacity-100 whitespace-nowrap z-20">
+                    {social.name}
+                  </span>
+                </a>
+              ))}
+            </div>
+
+          </div>
+
+          <!-- Footer Area -->
+          <footer class="relative z-10 mx-auto flex w-full max-w-5xl flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-500 dark:text-zinc-500 border-t border-zinc-200/80 dark:border-zinc-800/80 pt-6">
+            <p>© {new Date().getFullYear()} Gaurav Doliya. All rights reserved.</p>
+            <div class="flex items-center gap-4">
+              <span class="inline-flex items-center gap-1.5">
+                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                <span>System Operational</span>
+              </span>
+              <span>•</span>
+              <a href="/" class="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Home</a>
+              <span>•</span>
+              <a href="/contact" class="hover:text-zinc-900 dark:hover:text-zinc-300 transition-colors">Contact</a>
+            </div>
+          </footer>
+
+        </main>
+      )
+    }
+
+  </body>
+</html>

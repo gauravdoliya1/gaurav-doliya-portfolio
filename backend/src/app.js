@@ -7,6 +7,8 @@ import resumeRoutes from "./routes/resumeRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import themeRoutes from "./routes/themeRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import redirectRoutes from "./routes/redirectRoutes.js";
+import { getRedirectData } from "./controllers/redirectController.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,6 +25,27 @@ app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/theme", themeRoutes);
+app.use("/api/redirect", redirectRoutes);
+
+// Smart Link (/a) direct redirect route
+app.get(["/a", "/a/"], (req, res, next) => {
+  const redirectInfo = getRedirectData();
+  const envActive = process.env.REDIRECT_A_ACTIVE;
+  const envTarget = process.env.REDIRECT_A_TARGET;
+
+  const isActive = envActive !== undefined
+    ? String(envActive).trim().toLowerCase() === "true" || String(envActive).trim() === "1"
+    : Boolean(redirectInfo?.isActive);
+
+  const targetUrl = (envTarget && String(envTarget).trim() !== "")
+    ? String(envTarget).trim()
+    : String(redirectInfo?.targetUrl || "").trim();
+
+  if (isActive && targetUrl) {
+    return res.redirect(307, targetUrl);
+  }
+  next();
+});
 
 app.use(
   "/uploads",

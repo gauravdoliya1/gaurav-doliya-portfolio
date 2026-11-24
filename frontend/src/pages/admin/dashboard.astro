@@ -71,6 +71,13 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
             <span class="action">Customize Colors →</span>
           </button>
 
+          <button class="control-card" data-modal="redirect">
+            <span class="number">04</span>
+            <h3>Smart Link (/a)</h3>
+            <p>Control the /a redirect target (Instagram, YouTube, etc.) or Coming Soon.</p>
+            <span class="action">Manage Link →</span>
+          </button>
+
         </div>
       </section>
 
@@ -267,6 +274,40 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
           </div>
 
           <p class="form-message" id="themeMessage"></p>
+
+        </form>
+      `
+    },
+
+    redirect: {
+      title: "Smart Link URL (/a)",
+      content: `
+        <form id="redirectForm">
+
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <label for="targetUrl" style="margin-bottom: 0;">Destination URL for /a</label>
+              <a href="/a" target="_blank" rel="noopener noreferrer" style="color: #de4528; font-size: 12px; font-weight: 700; text-decoration: none;">
+                Test /a in New Tab ↗
+              </a>
+            </div>
+            <input
+              type="url"
+              id="targetUrl"
+              placeholder="https://youtube.com/@gauravdoliya"
+              value="https://youtube.com/@gauravdoliya"
+              required
+            >
+            <span class="input-hint">
+              Yahan jo bhi URL dalenge (YouTube, Instagram, WhatsApp, etc.), http://localhost:4321/a seedha wahan redirect karega.
+            </span>
+          </div>
+
+          <button type="submit" class="save-button">
+            Save URL
+          </button>
+
+          <p class="form-message" id="redirectMessage"></p>
 
         </form>
       `
@@ -741,6 +782,77 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
         });
       }
     }
+
+    // 4. Redirect form
+    const redirectForm = document.querySelector("#redirectForm");
+    if (redirectForm) {
+      const urlInput = redirectForm.querySelector("#targetUrl") as HTMLInputElement | null;
+      const message = redirectForm.querySelector("#redirectMessage") as HTMLElement | null;
+      const submitBtn = redirectForm.querySelector("button[type='submit']") as HTMLButtonElement | null;
+
+      // Fetch current configuration
+      fetch(`${apiUrl}/api/redirect`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.success && data?.data && urlInput) {
+            urlInput.value = data.data.targetUrl || "https://youtube.com/@gauravdoliya";
+          }
+        })
+        .catch(() => {
+          if (urlInput && !urlInput.value) {
+            urlInput.value = "https://youtube.com/@gauravdoliya";
+          }
+        });
+
+      // Submit new URL
+      redirectForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const targetUrl = urlInput?.value.trim() || "";
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Saving...";
+          submitBtn.style.opacity = "0.7";
+        }
+
+        if (message) {
+          message.textContent = "Saving URL, please wait...";
+          message.style.color = "#de4528";
+        }
+
+        try {
+          const res = await fetch(`${apiUrl}/api/redirect`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ targetUrl })
+          });
+
+          const data = await res.json().catch(() => null);
+          if (res.ok && data?.success) {
+            if (message) {
+              message.textContent = data.message || "URL updated successfully!";
+              message.style.color = "#4ade80";
+            }
+          } else {
+            if (message) {
+              message.textContent = data?.message || "Failed to update URL.";
+              message.style.color = "#f87171";
+            }
+          }
+        } catch (err) {
+          if (message) {
+            message.textContent = "Network error: Unable to connect to backend.";
+            message.style.color = "#f87171";
+          }
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Save URL";
+            submitBtn.style.opacity = "1";
+          }
+        }
+      });
+    }
   }
 
   // Logout
@@ -888,7 +1000,7 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
 
   .control-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
     gap: 20px;
   }
 
@@ -1065,7 +1177,7 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
     margin-top: 6px;
   }
 
-  .modal-box input:not([type="color"]):not([type="file"]) {
+  .modal-box input:not([type="color"]):not([type="file"]):not([type="checkbox"]) {
     width: 100%;
     height: 46px;
     padding: 0 14px;
@@ -1078,7 +1190,7 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
     transition: all 0.2s;
   }
 
-  .modal-box input:not([type="color"]):not([type="file"]):focus {
+  .modal-box input:not([type="color"]):not([type="file"]):not([type="checkbox"]):focus {
     border-color: #de4528;
     box-shadow: 0 0 0 2px rgba(222, 69, 40, 0.2);
   }
@@ -1323,6 +1435,297 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
     color: #71717a;
     font-size: 11px;
     margin: 10px 0 0;
+  }
+
+  /* =========================================================================
+     SMART LINK (/a) MODAL - ULTRA-POLISHED CLEAN UI
+     ========================================================================= */
+
+  .redirect-modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* 1. Header Route Card */
+  .redirect-header-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #0d0a0b;
+    border: 1px solid #272024;
+    border-radius: 12px;
+  }
+
+  .route-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .route-pill {
+    font-size: 13px;
+    color: #a1a1aa;
+    text-transform: none !important;
+  }
+
+  .route-pill strong {
+    color: #ffffff;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    background: #18181b;
+    padding: 2px 6px;
+    border-radius: 5px;
+    border: 1px solid #2e2830;
+  }
+
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    width: fit-content;
+    text-transform: none !important;
+  }
+
+  .status-active {
+    background: rgba(34, 197, 94, 0.15) !important;
+    border: 1px solid rgba(34, 197, 94, 0.4) !important;
+    color: #4ade80 !important;
+  }
+
+  .status-inactive {
+    background: rgba(161, 161, 170, 0.12) !important;
+    border: 1px solid rgba(161, 161, 170, 0.25) !important;
+    color: #a1a1aa !important;
+  }
+
+  .route-test-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 14px;
+    background: #181416;
+    border: 1px solid #382e34;
+    border-radius: 8px;
+    color: #ffffff !important;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .route-test-link:hover {
+    background: #241c21;
+    border-color: #de4528;
+    color: #de4528 !important;
+    transform: translateY(-1px);
+  }
+
+  /* 2. Modern Toggle Card */
+  .redirect-toggle-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 16px;
+    background: #0d0a0b;
+    border: 1px solid #272024;
+    border-radius: 12px;
+  }
+
+  .toggle-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .toggle-heading {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: none !important;
+  }
+
+  .toggle-subtext {
+    font-size: 11px;
+    color: #8e8895;
+    line-height: 1.45;
+    text-transform: none !important;
+  }
+
+  .toggle-subtext code {
+    color: #de4528;
+    background: rgba(222, 69, 40, 0.12);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 11px;
+  }
+
+  /* iOS-Style Modern Switch */
+  .modern-switch {
+    position: relative;
+    display: inline-block !important;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+    margin: 0 !important;
+    cursor: pointer;
+  }
+
+  .modern-switch-input {
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .modern-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #261f22;
+    border: 1px solid #3d3137;
+    border-radius: 999px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modern-switch-slider::before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  }
+
+  .modern-switch-input:checked + .modern-switch-slider {
+    background-color: #22c55e;
+    border-color: #16a34a;
+  }
+
+  .modern-switch-input:checked + .modern-switch-slider::before {
+    transform: translateX(22px);
+  }
+
+  /* 3. Fields & Inputs */
+  .redirect-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field-title {
+    display: block;
+    color: #e4e4e7;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  .url-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .url-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 14px;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  .modal-box input.redirect-url-input {
+    width: 100% !important;
+    height: 46px !important;
+    padding: 0 14px 0 38px !important;
+    background: #090607 !important;
+    border: 1px solid #272228 !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    font-size: 13px !important;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    outline: none !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .modal-box input.redirect-url-input:focus {
+    border-color: #de4528 !important;
+    box-shadow: 0 0 0 2px rgba(222, 69, 40, 0.25) !important;
+  }
+
+  .field-help {
+    font-size: 11px;
+    color: #71717a;
+    line-height: 1.4;
+    text-transform: none !important;
+  }
+
+  /* 4. Quick Presets */
+  .quick-preset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .preset-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 12px;
+    background: #110e10;
+    border: 1px solid #272024;
+    border-radius: 8px;
+    color: #d4d4d8;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: none !important;
+    font-family: inherit;
+  }
+
+  .preset-btn:hover {
+    background: #1d161a;
+    border-color: #de4528;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .preset-btn:active {
+    transform: scale(0.97);
+  }
+
+  .preset-icon {
+    font-size: 13px;
+  }
+
+  .redirect-submit-btn {
+    margin-top: 8px !important;
   }
 
   @media (max-width: 700px) {
