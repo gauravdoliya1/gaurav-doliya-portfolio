@@ -27,11 +27,6 @@ const targetUrl =
 
 const shouldRedirect = isActive && Boolean(targetUrl);
 
-// 2. Server-side redirect (if SSR mode is enabled in Astro)
-if (shouldRedirect && typeof Astro.redirect === "function") {
-  return Astro.redirect(targetUrl, 307);
-}
-
 // Social media links configuration for the Coming Soon fallback
 const socials = [
   {
@@ -72,8 +67,9 @@ const socials = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" href="/GD_B_L.png" />
+    <link rel="shortcut icon" href="/GD_B_L.png" />
+    <link rel="apple-touch-icon" href="/GD_B_L.png" />
 
     <!-- SEO: Strictly prevent indexing -->
     <meta name="robots" content="noindex, nofollow" />
@@ -88,49 +84,56 @@ const socials = [
       rel="stylesheet"
     />
 
-    <!-- =========================================================================
-         INSTANT DYNAMIC REDIRECTION ENGINE (Zero Lag / Zero Flicker)
-         1. If active at build/server time: Immediately executes window.location.replace()
-         2. In dev/browser: Live-queries the backend API (/api/redirect) so changes
-            made in the Admin Dashboard take effect immediately without rebuilding!
-         ========================================================================= -->
-    {
-      shouldRedirect && (
-        <>
-          <meta http-equiv="refresh" content={`0;url=${targetUrl}`} />
-          <link rel="canonical" href={targetUrl} />
-        </>
-      )
-    }
-
-    <script is:inline define:vars={{ shouldRedirect, targetUrl }}>
+    <!-- Dynamic Redirection Engine: Prioritizes live saved URL (localStorage / Backend API) -->
+    <script is:inline define:vars={{ defaultTarget: targetUrl }}>
       (async () => {
-        // Step 1: Instant local execution if active
-        if (shouldRedirect && targetUrl) {
-          try {
-            window.location.replace(targetUrl);
-          } catch (_) {
-            window.location.href = targetUrl;
-          }
-          return;
-        }
+        let destination = "";
 
-        // Step 2: Real-time query to Dashboard API for dynamic live updates
+        // 1. Check client-side storage for instant live update
+        try {
+          const localTarget = localStorage.getItem("smart_redirect_url");
+          const localActive = localStorage.getItem("smart_redirect_active");
+          if (localActive !== "false" && localTarget && localTarget.trim()) {
+            destination = localTarget.trim();
+          }
+        } catch (_) {}
+
+        // 2. Fetch fresh real-time configuration from backend API
         try {
           const apiUrl =
             window.location.hostname !== "localhost"
               ? window.location.origin
               : "http://localhost:3000";
           const res = await fetch(`${apiUrl}/api/redirect`, { cache: "no-store" });
-          if (!res.ok) return;
-          const json = await res.json();
-          if (json?.success && json?.data?.isActive && json?.data?.targetUrl) {
-            const dest = String(json.data.targetUrl).trim();
-            if (dest) {
-              window.location.replace(dest);
+          if (res.ok) {
+            const json = await res.json();
+            if (json?.success && json?.data) {
+              if (json.data.isActive !== false && json.data.targetUrl && json.data.targetUrl.trim()) {
+                destination = json.data.targetUrl.trim();
+                try {
+                  localStorage.setItem("smart_redirect_url", destination);
+                } catch (_) {}
+              } else if (json.data.isActive === false) {
+                // If explicitly disabled, do not redirect
+                destination = "";
+              }
             }
           }
         } catch (_) {}
+
+        // 3. Fallback to build-time configured target if no dynamic URL found yet
+        if (!destination && defaultTarget && defaultTarget.trim()) {
+          destination = defaultTarget.trim();
+        }
+
+        // 4. Execute redirection immediately if destination exists
+        if (destination) {
+          try {
+            window.location.replace(destination);
+          } catch (_) {
+            window.location.href = destination;
+          }
+        }
       })();
     </script>
 

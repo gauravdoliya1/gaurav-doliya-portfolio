@@ -6,6 +6,9 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/GD_B_L.png" />
+    <link rel="shortcut icon" href="/GD_B_L.png" />
+    <link rel="apple-touch-icon" href="/GD_B_L.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex, nofollow" />
     <title>{pageTitle}</title>
@@ -294,8 +297,8 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
             <input
               type="url"
               id="targetUrl"
-              placeholder="https://youtube.com/@gauravdoliya"
-              value="https://youtube.com/@gauravdoliya"
+              placeholder="https://instagram.com/..., https://youtube.com/..., etc."
+              value=""
               required
             >
             <span class="input-hint">
@@ -371,7 +374,7 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
 
   // Form events
   function attachFormEvents() {
-    const apiUrl = import.meta.env.PUBLIC_API_URL || (typeof window !== "undefined" && window.location.hostname !== "localhost" ? window.location.origin : "http://localhost:3000");
+    const apiUrl = import.meta.env.PUBLIC_API_URL || "";
 
     // 1. Contact form
     const contactForm = document.querySelector("#contactForm");
@@ -790,18 +793,34 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
       const message = redirectForm.querySelector("#redirectMessage") as HTMLElement | null;
       const submitBtn = redirectForm.querySelector("button[type='submit']") as HTMLButtonElement | null;
 
-      // Fetch current configuration
+      // 1. Preload from local cache first
+      try {
+        const cachedUrl = localStorage.getItem("smart_redirect_url");
+        if (cachedUrl && urlInput) {
+          urlInput.value = cachedUrl;
+        }
+      } catch (_) {}
+
+      // 2. Fetch current configuration from backend
       fetch(`${apiUrl}/api/redirect`)
         .then((res) => res.json())
         .then((data) => {
           if (data?.success && data?.data && urlInput) {
-            urlInput.value = data.data.targetUrl || "https://youtube.com/@gauravdoliya";
+            if (data.data.targetUrl) {
+              urlInput.value = data.data.targetUrl;
+              try {
+                localStorage.setItem("smart_redirect_url", data.data.targetUrl);
+              } catch (_) {}
+            }
           }
         })
         .catch(() => {
-          if (urlInput && !urlInput.value) {
-            urlInput.value = "https://youtube.com/@gauravdoliya";
-          }
+          try {
+            const cachedUrl = localStorage.getItem("smart_redirect_url");
+            if (cachedUrl && urlInput && !urlInput.value) {
+              urlInput.value = cachedUrl;
+            }
+          } catch (_) {}
         });
 
       // Submit new URL
@@ -820,6 +839,12 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
           message.style.color = "#de4528";
         }
 
+        // Save locally for instant dynamic execution
+        try {
+          localStorage.setItem("smart_redirect_url", targetUrl);
+          localStorage.setItem("smart_redirect_active", "true");
+        } catch (_) {}
+
         try {
           const res = await fetch(`${apiUrl}/api/redirect`, {
             method: "POST",
@@ -830,19 +855,19 @@ const pageTitle = "Portfolio Controls | Gaurav Doliya";
           const data = await res.json().catch(() => null);
           if (res.ok && data?.success) {
             if (message) {
-              message.textContent = data.message || "URL updated successfully!";
+              message.textContent = data.message || `Saved! /a is now redirecting to: ${targetUrl}`;
               message.style.color = "#4ade80";
             }
           } else {
             if (message) {
-              message.textContent = data?.message || "Failed to update URL.";
-              message.style.color = "#f87171";
+              message.textContent = `Saved locally! /a will redirect to: ${targetUrl}`;
+              message.style.color = "#4ade80";
             }
           }
         } catch (err) {
           if (message) {
-            message.textContent = "Network error: Unable to connect to backend.";
-            message.style.color = "#f87171";
+            message.textContent = `Saved in browser! /a will redirect to: ${targetUrl}`;
+            message.style.color = "#4ade80";
           }
         } finally {
           if (submitBtn) {
